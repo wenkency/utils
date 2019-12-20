@@ -2,6 +2,7 @@ package cn.carhouse.utils;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -22,11 +23,11 @@ public class ActivityUtils {
     // 集合用谁 List LinkedList Stack  ?? 删除和添加比较多
     private CopyOnWriteArrayList<Activity> mActivities;
 
-    /**
-     * 注册Activity监听
-     */
-    static {
-        ContextUtils.getApplication().registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
+    public static void register(Application application) {
+        if (application == null) {
+            return;
+        }
+        application.registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
                 // 将Activity添加到集合内
