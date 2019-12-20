@@ -23,6 +23,9 @@ public class ActivityUtils {
     // 集合用谁 List LinkedList Stack  ?? 删除和添加比较多
     private CopyOnWriteArrayList<Activity> mActivities;
 
+    /**
+     * 在Application初始化的时候调用一下这个方法
+     */
     public static void register(Application application) {
         if (application == null) {
             return;

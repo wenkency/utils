@@ -66,6 +66,9 @@ public class SPUtils {
         return sp.getString(key, defValue);
     }
 
+    public static String getString(String key) {
+        return getString(key, "");
+    }
 
     public static void putInt(String key, int value) {
         SharedPreferences sp = getSharedPreferences();
