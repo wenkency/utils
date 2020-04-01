@@ -15,7 +15,6 @@
  */
 package cn.carhouse.utils.provider;
 
-import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -23,6 +22,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
+import cn.carhouse.utils.ApplicationUtils;
 import cn.carhouse.utils.ContextUtils;
 
 
@@ -38,8 +38,8 @@ public class InitProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         Context application = getContext().getApplicationContext();
-        if (application == null) {
-            application = getApplicationByReflect();
+        if (application == null || !(application instanceof Application)) {
+            application = ApplicationUtils.getApplication();
         }
         if (application instanceof Application) {
             ContextUtils.init((Application) application);
@@ -47,21 +47,6 @@ public class InitProvider extends ContentProvider {
         return true;
     }
 
-    public static Application getApplicationByReflect() {
-        try {
-            @SuppressLint("PrivateApi")
-            Class<?> activityThread = Class.forName("android.app.ActivityThread");
-            Object thread = activityThread.getMethod("currentActivityThread").invoke(null);
-            Object app = activityThread.getMethod("getApplication").invoke(thread);
-            if (app == null) {
-                throw new NullPointerException("you should init first");
-            }
-            return (Application) app;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        throw new NullPointerException("you should init first");
-    }
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {

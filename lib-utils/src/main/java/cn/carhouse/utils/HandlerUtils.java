@@ -1,5 +1,6 @@
 package cn.carhouse.utils;
 
+import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -32,6 +33,11 @@ public class HandlerUtils {
             // 在主线程
             runnable.run();
         } else {
+            Activity currentActivity = ActivityUtils.getInstance().getCurrentActivity();
+            if (currentActivity != null) {
+                currentActivity.runOnUiThread(runnable);
+                return;
+            }
             // 不在主线程
             mHandler.post(runnable);
         }

@@ -1,0 +1,20 @@
+package cn.carhouse.utils;
+
+import android.app.Application;
+
+import java.lang.reflect.Method;
+
+public class ApplicationUtils {
+    public static Application getApplication() {
+        try {
+            Class<?> clz = Class.forName("android.app.ActivityThread");
+            Method method = clz.getDeclaredMethod("currentApplication", null);
+            method.setAccessible(true);
+            Application application = (Application) method.invoke(null, null);
+            return application;
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        throw new NullPointerException("getApplication is failed");
+    }
+}

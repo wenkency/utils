@@ -13,7 +13,6 @@ import android.widget.TextView;
  */
 public class UIUtils {
 
-
     /**
      * 取得资源对象
      *
