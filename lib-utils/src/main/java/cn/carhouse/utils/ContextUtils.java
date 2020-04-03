@@ -16,24 +16,31 @@ public class ContextUtils {
         mApplication = application;
     }
 
+    private static void checkInit() {
+        if (mApplication == null) {
+            init(ApplicationUtils.getApplication());
+        }
+    }
+
     public static Context getContext() {
+        checkInit();
         return mApplication.getApplicationContext();
     }
 
+
     public static Application getApplication() {
+        checkInit();
         return mApplication;
     }
 
     /**
      * 是不是主进程
      */
-    public static boolean isMainProcess(Application application) {
-        if (application == null) {
-            return false;
-        }
-        ActivityManager am = ((ActivityManager) application.getSystemService(Context.ACTIVITY_SERVICE));
+    public static boolean isMainProcess() {
+        checkInit();
+        ActivityManager am = ((ActivityManager) mApplication.getSystemService(Context.ACTIVITY_SERVICE));
         List<ActivityManager.RunningAppProcessInfo> processInfos = am.getRunningAppProcesses();
-        String mainProcessName = application.getPackageName();
+        String mainProcessName = mApplication.getPackageName();
         int myPid = android.os.Process.myPid();
         for (ActivityManager.RunningAppProcessInfo info : processInfos) {
             if (info.pid == myPid && mainProcessName.equals(info.processName)) {
