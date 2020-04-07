@@ -53,7 +53,6 @@ public class StateBarUtils {
         } catch (Throwable e) {
             e.printStackTrace();
         }
-
     }
 
 
