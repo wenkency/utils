@@ -1,6 +1,7 @@
 package cn.carhouse.utils;
 
 import android.content.res.Resources;
+import android.util.TypedValue;
 
 /**
  * 分辨率工具类
@@ -26,20 +27,22 @@ public class DensityUtils {
     /**
      * 根据手机的分辨率从 dp 的单位 转成为 px(像素)
      *
-     * @param dpValue 虚拟像素
+     * @param value 虚拟像素
      * @return 像素
      */
-    public static int dp2px(float dpValue) {
-        return (int) (0.5f + dpValue * Resources.getSystem().getDisplayMetrics().density);
+    public static int dp2px(float value) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value,
+                Resources.getSystem().getDisplayMetrics());
     }
 
     /**
      * 根据手机的分辨率从 px(像素) 的单位 转成为 dp
      *
-     * @param pxValue 像素
+     * @param value 像素
      * @return 虚拟像素
      */
-    public static float px2dp(int pxValue) {
-        return (pxValue / Resources.getSystem().getDisplayMetrics().density);
+    public static int px2dp(int value) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_PX, value,
+                Resources.getSystem().getDisplayMetrics());
     }
 }

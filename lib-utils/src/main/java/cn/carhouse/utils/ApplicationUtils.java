@@ -5,7 +5,7 @@ import android.app.Application;
 import java.lang.reflect.Method;
 
 public class ApplicationUtils {
-    public static Application getApplication() {
+    public final static Application getApplication() {
         try {
             Class<?> clz = Class.forName("android.app.ActivityThread");
             Method method = clz.getDeclaredMethod("currentApplication", null);

@@ -2,10 +2,6 @@
     package="cn.carhouse.utils">
 
     <application>
-        <provider
-            android:name=".provider.InitProvider"
-            android:authorities="${applicationId}.BaseProvider"
-            android:exported="false"
-            android:multiprocess="true" />
+
     </application>
 </manifest>

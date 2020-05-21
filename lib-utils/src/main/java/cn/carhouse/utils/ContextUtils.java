@@ -12,23 +12,23 @@ import java.util.List;
 public class ContextUtils {
     private static Application mApplication;
 
-    public static void init(Application application) {
+    public final static void init(Application application) {
         mApplication = application;
     }
 
-    private static void checkInit() {
+    private final static void checkInit() {
         if (mApplication == null) {
             init(ApplicationUtils.getApplication());
         }
     }
 
-    public static Context getContext() {
+    public final static Context getContext() {
         checkInit();
         return mApplication.getApplicationContext();
     }
 
 
-    public static Application getApplication() {
+    public final static Application getApplication() {
         checkInit();
         return mApplication;
     }
@@ -36,7 +36,7 @@ public class ContextUtils {
     /**
      * 是不是主进程
      */
-    public static boolean isMainProcess() {
+    public final static boolean isMainProcess() {
         checkInit();
         ActivityManager am = ((ActivityManager) mApplication.getSystemService(Context.ACTIVITY_SERVICE));
         List<ActivityManager.RunningAppProcessInfo> processInfos = am.getRunningAppProcesses();
