@@ -23,6 +23,6 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation this.dependLibs.appcompat
+    compileOnly this.dependLibs.appcompat
 
 }

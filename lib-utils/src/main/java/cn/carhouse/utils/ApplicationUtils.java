@@ -4,7 +4,7 @@ import android.app.Application;
 
 import java.lang.reflect.Method;
 
-public class ApplicationUtils {
+class ApplicationUtils {
     public final static Application getApplication() {
         try {
             Class<?> clz = Class.forName("android.app.ActivityThread");
