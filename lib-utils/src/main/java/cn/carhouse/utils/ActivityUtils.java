@@ -19,7 +19,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ActivityUtils {
 
 
-    private static volatile ActivityUtils mInstance;
     // 集合用谁 List LinkedList Stack  ?? 删除和添加比较多
     private CopyOnWriteArrayList<Activity> mActivities;
 
@@ -51,14 +50,11 @@ public class ActivityUtils {
 
 
     public final static ActivityUtils getInstance() {
-        if (mInstance == null) {
-            synchronized (ActivityUtils.class) {
-                if (mInstance == null) {
-                    mInstance = new ActivityUtils();
-                }
-            }
-        }
-        return mInstance;
+        return InstanceHolder.mInstance;
+    }
+
+    private static class InstanceHolder {
+        private static ActivityUtils mInstance = new ActivityUtils();
     }
 
     public final boolean isEmpty() {

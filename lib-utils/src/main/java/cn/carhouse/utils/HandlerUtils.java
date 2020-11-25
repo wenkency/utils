@@ -8,21 +8,22 @@ import android.os.Looper;
  * Handler单例
  */
 public class HandlerUtils {
-    private static volatile HandlerUtils instance;
+
     private Handler mHandler = new Handler(Looper.getMainLooper());
 
     private HandlerUtils() {
     }
 
     public static HandlerUtils getInstance() {
-        if (instance == null) {
-            synchronized (HandlerUtils.class) {
-                if (instance == null) {
-                    instance = new HandlerUtils();
-                }
-            }
-        }
-        return instance;
+        return InstanceHolder.mInstance;
+    }
+
+    private static class InstanceHolder {
+        private static HandlerUtils mInstance = new HandlerUtils();
+    }
+
+    public Handler handler() {
+        return mHandler;
     }
 
     /**

@@ -12,8 +12,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /*
- *  @文件名:   ThreadPoolUtils
- *  @描述：    线程管理类，管理并发执行的任务。访OkHttp Dispatcher写的
+ *  @文件名:   ThreadPoolUtils 访OkHttp Dispatcher写的
+ *  @描述：    线程管理类，管理并发执行的任务。
+ *  1. 默认同时最多执行10个任务，如有需求可以通过修改MAX_TASK值。
+ *  2. 如果任务数量大于10个，就会放进readyTasks里面等待执行。
+ *  3. 任务执行完成都会调用promoteAndExecute方法。
+ *  4. 执行任务用的是线程池
  */
 public class ThreadPoolUtils {
     // 线程池
@@ -25,23 +29,19 @@ public class ThreadPoolUtils {
     // 队列默认并发任务个数最大值为10
     private static int MAX_TASK = 10;
 
-    private static volatile ThreadPoolUtils instance;
 
     private ThreadPoolUtils() {
     }
 
     public static ThreadPoolUtils getInstance() {
-        if (instance == null) {
-            synchronized (ThreadPoolUtils.class) {
-                if (instance == null) {
-                    instance = new ThreadPoolUtils();
-                }
-            }
-        }
-        return instance;
+        return InstanceHolder.instance;
     }
 
-    private ExecutorService executorService() {
+    private static class InstanceHolder {
+        public static ThreadPoolUtils instance = new ThreadPoolUtils();
+    }
+
+    protected ExecutorService executorService() {
         if (executorService == null) {
             synchronized (this) {
                 if (executorService == null) {
@@ -62,10 +62,13 @@ public class ThreadPoolUtils {
         return executorService;
     }
 
-    public void execute(ThreadTask task) {
+    /**
+     * 执行任务
+     */
+    public void execute(Runnable runnable) {
         synchronized (this) {
             // 添加到准备的任务里面
-            readyTasks.add(task);
+            readyTasks.add(new ThreadTask(runnable));
         }
 
         // 去执行
@@ -95,12 +98,12 @@ public class ThreadPoolUtils {
             }
         }
 
-        for (Runnable executableCall : executableTasks) {
+        for (ThreadTask executableCall : executableTasks) {
             executeOn(executableCall);
         }
     }
 
-    private void executeOn(Runnable task) {
+    private void executeOn(ThreadTask task) {
         boolean success = false;
         try {
             // 开线程后，立马到finally
@@ -120,10 +123,11 @@ public class ThreadPoolUtils {
         synchronized (this) {
             runningTasks.remove(task);
         }
+        // 回去继续执行
         promoteAndExecute();
     }
 
-    private final ThreadFactory threadFactory() {
+    protected ThreadFactory threadFactory() {
         return new ThreadFactory() {
             @Override
             public Thread newThread(Runnable runnable) {
@@ -148,6 +152,29 @@ public class ThreadPoolUtils {
      */
     public static void setMaxTask(int maxTask) {
         MAX_TASK = maxTask;
+    }
+
+
+    /**
+     * 任务：使用静态代理
+     */
+    private static class ThreadTask implements Runnable {
+        private Runnable runnable;
+
+        public ThreadTask(Runnable runnable) {
+            this.runnable = runnable;
+        }
+
+        @Override
+        public void run() {
+            try {
+                runnable.run();
+            } finally {
+                // 从队列移除
+                ThreadPoolUtils.getInstance().finishTask(this);
+            }
+        }
+
     }
 
 }

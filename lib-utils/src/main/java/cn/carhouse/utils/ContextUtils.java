@@ -11,17 +11,14 @@ import java.util.List;
  */
 public class ContextUtils {
     private Application mApplication;
-    private static volatile ContextUtils instance;
 
     public static ContextUtils getInstance() {
-        if (instance == null) {
-            synchronized (ContextUtils.class) {
-                instance = new ContextUtils();
-            }
-        }
-        return instance;
+        return InstanceHolder.mInstance;
     }
 
+    private static class InstanceHolder {
+        private static ContextUtils mInstance = new ContextUtils();
+    }
     public void init(Application application) {
         mApplication = application;
     }

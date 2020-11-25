@@ -10,7 +10,7 @@ allprojects {
 		}
 	}
 
-implementation 'com.github.wenkency:utils:1.6.0'
+implementation 'com.github.wenkency:utils:1.7.0'
 
 ```
 
