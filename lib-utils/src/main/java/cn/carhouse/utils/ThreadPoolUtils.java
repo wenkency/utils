@@ -119,7 +119,7 @@ public class ThreadPoolUtils {
 
     }
 
-    public void finishTask(Runnable task) {
+    private void finishTask(Runnable task) {
         synchronized (this) {
             runningTasks.remove(task);
         }
@@ -169,6 +169,8 @@ public class ThreadPoolUtils {
         public void run() {
             try {
                 runnable.run();
+            } catch (Exception e) {
+                e.printStackTrace();
             } finally {
                 // 从队列移除
                 ThreadPoolUtils.getInstance().finishTask(this);
