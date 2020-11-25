@@ -8,10 +8,21 @@ import android.os.Looper;
  * Handler单例
  */
 public class HandlerUtils {
-    private static Handler mHandler = new Handler(Looper.getMainLooper());
+    private static volatile HandlerUtils instance;
+    private Handler mHandler = new Handler(Looper.getMainLooper());
 
-    public static Handler getHandler() {
-        return mHandler;
+    private HandlerUtils() {
+    }
+
+    public static HandlerUtils getInstance() {
+        if (instance == null) {
+            synchronized (HandlerUtils.class) {
+                if (instance == null) {
+                    instance = new HandlerUtils();
+                }
+            }
+        }
+        return instance;
     }
 
     /**
@@ -19,7 +30,7 @@ public class HandlerUtils {
      *
      * @return
      */
-    public static boolean isRunInMainThread() {
+    public boolean isRunInMainThread() {
         return Looper.myLooper() == Looper.getMainLooper();
     }
 
@@ -28,7 +39,7 @@ public class HandlerUtils {
      *
      * @param runnable
      */
-    public static void runInMainThread(Runnable runnable) {
+    public void runInMainThread(Runnable runnable) {
         if (isRunInMainThread()) {
             // 在主线程
             runnable.run();
@@ -41,5 +52,13 @@ public class HandlerUtils {
             // 不在主线程
             mHandler.post(runnable);
         }
+    }
+
+    public void postDelayed(Runnable runnable, long delayMillis) {
+        mHandler.postDelayed(runnable, delayMillis);
+    }
+
+    public void post(Runnable runnable) {
+        mHandler.post(runnable);
     }
 }

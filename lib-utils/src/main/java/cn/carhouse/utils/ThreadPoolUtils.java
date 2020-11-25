@@ -12,23 +12,22 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /*
- *  @文件名:   ThreadUtils
- *  @创建者:   Administrator
- *  @创建时间:  2015/11/23 11:27
- *  @描述：    线程管理类，管理线程池，一个应用中有多个线程池，每个线程池做自己相关的业务
+ *  @文件名:   ThreadPoolUtils
+ *  @描述：    线程管理类，管理并发执行的任务。访OkHttp Dispatcher写的
  */
 public class ThreadPoolUtils {
-    private ThreadPoolExecutor executorService;
+    // 线程池
+    private ExecutorService executorService;
     // 准备执行的任务
-    private final Deque<Runnable> readyTasks = new ArrayDeque<>();
+    private final Deque<ThreadTask> readyTasks = new ArrayDeque<>();
     // 正在执行的任务
-    private final Deque<Runnable> runningTasks = new ArrayDeque<>();
-    // 队列默认任务个数为10
+    private final Deque<ThreadTask> runningTasks = new ArrayDeque<>();
+    // 队列默认并发任务个数最大值为10
     private static int MAX_TASK = 10;
-    private static ThreadPoolUtils instance;
+
+    private static volatile ThreadPoolUtils instance;
 
     private ThreadPoolUtils() {
-
     }
 
     public static ThreadPoolUtils getInstance() {
@@ -42,7 +41,7 @@ public class ThreadPoolUtils {
         return instance;
     }
 
-    private ThreadPoolExecutor executorService() {
+    private ExecutorService executorService() {
         if (executorService == null) {
             synchronized (this) {
                 if (executorService == null) {
@@ -63,49 +62,64 @@ public class ThreadPoolUtils {
         return executorService;
     }
 
-    public synchronized void execute(Runnable task) {
-        // 添加到准备的任务里面
-        readyTasks.add(task);
+    public void execute(ThreadTask task) {
+        synchronized (this) {
+            // 添加到准备的任务里面
+            readyTasks.add(task);
+        }
+
         // 去执行
         promoteAndExecute();
     }
 
     private void promoteAndExecute() {
         // 如果没有准备的任务或者执行的任务大于任务数量
-        if (readyTasks.size() <= 0 || runningTasks.size() >= MAX_TASK) {
-            return;
+        synchronized (this) {
+            if (readyTasks.size() <= 0 || runningTasks.size() >= MAX_TASK) {
+                return;
+            }
         }
         // 创建一个List
-        List<Runnable> executableTasks = new ArrayList<>();
-        for (Runnable readyTask : readyTasks) {
-            // 如果任务数大于最大数量
-            if (runningTasks.size() >= MAX_TASK) {
-                break;
+        List<ThreadTask> executableTasks = new ArrayList<>();
+        synchronized (this) {
+            for (ThreadTask readyTask : readyTasks) {
+                // 如果任务数大于最大数量
+                if (runningTasks.size() >= MAX_TASK) {
+                    break;
+                }
+                // 移除
+                readyTasks.remove(readyTask);
+                // 添加到执行的任务集合
+                runningTasks.add(readyTask);
+                executableTasks.add(readyTask);
             }
-            // 移除
-            readyTasks.remove(readyTask);
-            // 添加到执行的任务集合
-            runningTasks.add(readyTask);
-            executableTasks.add(readyTask);
         }
+
         for (Runnable executableCall : executableTasks) {
             executeOn(executableCall);
         }
     }
 
     private void executeOn(Runnable task) {
+        boolean success = false;
         try {
+            // 开线程后，立马到finally
             executorService().execute(task);
+            success = true;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            finishTask(task);
+            if (!success) {
+                finishTask(task);
+            }
         }
 
     }
 
-    private synchronized void finishTask(Runnable task) {
-        runningTasks.remove(task);
+    public void finishTask(Runnable task) {
+        synchronized (this) {
+            runningTasks.remove(task);
+        }
         promoteAndExecute();
     }
 
@@ -120,23 +134,20 @@ public class ThreadPoolUtils {
         };
     }
 
-
+    /**
+     * 这个比较少用，直接执行
+     */
     public Future<?> submit(Runnable task) {
         return executorService().submit(task);
     }
 
-    public void remove(Runnable task) {
-        if (!executorService().isShutdown()) {
-            executorService().getQueue().remove(task);
-        }
-    }
-
-    public void clear() {
-        executorService().shutdownNow();
-        executorService().getQueue().clear();
-    }
-
-    public void setMaxTask(int maxTask) {
+    /**
+     * 设置任务并发最大数量，如果要改变设置调用一次即可
+     *
+     * @param maxTask
+     */
+    public static void setMaxTask(int maxTask) {
         MAX_TASK = maxTask;
     }
+
 }

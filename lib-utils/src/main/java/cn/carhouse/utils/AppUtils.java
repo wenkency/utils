@@ -31,7 +31,7 @@ public class AppUtils {
     }
 
     private static PackageInfo getPackageInfo() {
-        Context context = ContextUtils.getContext();
+        Context context = ContextUtils.getInstance().getContext();
         if (context == null) {
             return null;
         }

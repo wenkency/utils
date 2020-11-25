@@ -1,5 +1,6 @@
 package cn.carhouse.utils;
 
+import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Paint;
@@ -19,7 +20,11 @@ public class UIUtils {
      * @return
      */
     public static Resources getResources() {
-        return ContextUtils.getContext().getResources();
+        return getContext().getResources();
+    }
+
+    private static Context getContext() {
+        return ContextUtils.getInstance().getContext();
     }
 
     /**
@@ -129,7 +134,7 @@ public class UIUtils {
     }
 
     public static int getIdentifier(String name, String defType) {
-        int resId = getResources().getIdentifier(name, defType, ContextUtils.getContext().getPackageName());
+        int resId = getResources().getIdentifier(name, defType, getContext().getPackageName());
         return resId;
     }
 

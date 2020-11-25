@@ -23,7 +23,7 @@ public class TSUtils {
             message = message.subSequence(0, 50) + "...";
         }
         if (mToast == null) {
-            mToast = Toast.makeText(ContextUtils.getContext(), message, duration);
+            mToast = Toast.makeText(ContextUtils.getInstance().getContext(), message, duration);
         } else {
             mToast.setText(message);
             mToast.setDuration(duration);
@@ -44,7 +44,7 @@ public class TSUtils {
             return;
         }
         // 在主线程去弹窗
-        HandlerUtils.runInMainThread(new Task(text, duration));
+        HandlerUtils.getInstance().runInMainThread(new Task(text, duration));
     }
 
     private static class Task implements Runnable {

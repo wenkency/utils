@@ -10,37 +10,41 @@ import java.util.List;
  * Context帮助类
  */
 public class ContextUtils {
-    private static Application mApplication;
+    private Application mApplication;
+    private static volatile ContextUtils instance;
 
-    public final static void init(Application application) {
+    public static ContextUtils getInstance() {
+        if (instance == null) {
+            synchronized (ContextUtils.class) {
+                instance = new ContextUtils();
+            }
+        }
+        return instance;
+    }
+
+    public void init(Application application) {
         mApplication = application;
     }
 
-    private final static void checkInit() {
+    public Application application() {
         if (mApplication == null) {
-            init(ApplicationUtils.getApplication());
+            mApplication = ApplicationUtils.getApplication();
         }
-    }
-
-    public final static Context getContext() {
-        checkInit();
-        return mApplication.getApplicationContext();
-    }
-
-
-    public final static Application getApplication() {
-        checkInit();
         return mApplication;
     }
+
+    public final Context getContext() {
+        return application().getApplicationContext();
+    }
+
 
     /**
      * 是不是主进程
      */
-    public final static boolean isMainProcess() {
-        checkInit();
-        ActivityManager am = ((ActivityManager) mApplication.getSystemService(Context.ACTIVITY_SERVICE));
+    public static boolean isMainProcess(Application application) {
+        ActivityManager am = ((ActivityManager) application.getSystemService(Context.ACTIVITY_SERVICE));
         List<ActivityManager.RunningAppProcessInfo> processInfos = am.getRunningAppProcesses();
-        String mainProcessName = mApplication.getPackageName();
+        String mainProcessName = application.getPackageName();
         int myPid = android.os.Process.myPid();
         for (ActivityManager.RunningAppProcessInfo info : processInfos) {
             if (info.pid == myPid && mainProcessName.equals(info.processName)) {

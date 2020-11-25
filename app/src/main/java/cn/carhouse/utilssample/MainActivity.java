@@ -10,10 +10,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import javax.crypto.Cipher;
 
+import cn.carhouse.utils.ContextUtils;
 import cn.carhouse.utils.DateUtils;
 import cn.carhouse.utils.DensityUtils;
+import cn.carhouse.utils.HandlerUtils;
 import cn.carhouse.utils.SPUtils;
 import cn.carhouse.utils.TSUtils;
+import cn.carhouse.utils.ThreadTask;
 import cn.carhouse.utils.ThreadPoolUtils;
 import cn.carhouse.utils.crypt.MessageDigestUtils;
 import cn.carhouse.utils.crypt.symmetric.AESUtil;
@@ -51,25 +54,31 @@ public class MainActivity extends AppCompatActivity {
         tv.setText(sb.toString());
 
 
-        for (int i = 0; i < 100; i++) {
-            SystemClock.sleep(2*i);
-            ThreadPoolUtils.getInstance(10).execute(new Task(i));
-        }
+        ThreadPoolUtils.getInstance().execute(new TestTask(2));
     }
 
-    class Task implements Runnable {
+    class TestTask extends ThreadTask {
         private int task =0;
 
-        public Task(int task) {
+        public TestTask(int task) {
             this.task = task;
         }
 
+
         @Override
-        public void run() {
+        public void execute() {
+            TSUtils.show("execute"+ ContextUtils.getInstance().application());
+            SystemClock.sleep(200*task);
             Log.e("TAG",
                     Thread.currentThread().getName() + ":"
                             + Thread.currentThread().getId()
                             + ":" + task);
+            HandlerUtils.getInstance().runInMainThread(new Runnable() {
+                @Override
+                public void run() {
+                    tv.setText("HandlerUtils");
+                }
+            });
         }
     }
 }

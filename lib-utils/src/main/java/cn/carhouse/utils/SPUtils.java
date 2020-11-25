@@ -10,7 +10,7 @@ public class SPUtils {
     private static final String CONFIG = "CONFIG";
 
     private static Context getContext() {
-        return ContextUtils.getContext();
+        return ContextUtils.getInstance().getContext();
     }
 
     //CT 建议使用　

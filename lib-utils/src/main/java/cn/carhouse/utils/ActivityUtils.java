@@ -21,7 +21,7 @@ public class ActivityUtils {
 
     private static volatile ActivityUtils mInstance;
     // 集合用谁 List LinkedList Stack  ?? 删除和添加比较多
-    private final CopyOnWriteArrayList<Activity> mActivities;
+    private CopyOnWriteArrayList<Activity> mActivities;
 
     /**
      * 在Application初始化的时候调用一下这个方法
@@ -45,8 +45,10 @@ public class ActivityUtils {
     }
 
     private ActivityUtils() {
-        mActivities = new CopyOnWriteArrayList<>();
+        // 初始化一下
+        getActivities();
     }
+
 
     public final static ActivityUtils getInstance() {
         if (mInstance == null) {
@@ -69,10 +71,7 @@ public class ActivityUtils {
      * @param activity
      */
     public final void attach(Activity activity) {
-        synchronized (mActivities) {
-            mActivities.add(activity);
-        }
-
+        getActivities().add(activity);
     }
 
     /**
@@ -81,15 +80,16 @@ public class ActivityUtils {
      * @param detachActivity
      */
     public final void detach(Activity detachActivity) {
-        synchronized (mActivities) {
-            mActivities.remove(detachActivity);
-        }
+        getActivities().remove(detachActivity);
     }
 
     /**
      * 获取所有的Activity
      */
     public final List<Activity> getActivities() {
+        if (mActivities == null) {
+            mActivities = new CopyOnWriteArrayList<>();
+        }
         return mActivities;
     }
 
@@ -97,7 +97,7 @@ public class ActivityUtils {
      * 获取当前的Activity（最前面）
      */
     public final Activity getCurrentActivity() {
-        if (mActivities.size() <= 0) {
+        if (isEmpty()) {
             return null;
         }
         return mActivities.get(mActivities.size() - 1);
@@ -107,7 +107,7 @@ public class ActivityUtils {
      * 关闭指定类名的Activity
      */
     public final void finish(Class<? extends Activity>... activityClass) {
-        for (Activity activity : mActivities) {
+        for (Activity activity : getActivities()) {
             for (Class<? extends Activity> clazz : activityClass) {
                 if (activity.getClass().getCanonicalName().equals(clazz.getCanonicalName())) {
                     activity.finish();
@@ -120,7 +120,7 @@ public class ActivityUtils {
      * 关闭所有的Activity
      */
     public final void finishAll() {
-        for (Activity activity : mActivities) {
+        for (Activity activity : getActivities()) {
             activity.finish();
         }
     }
