@@ -15,10 +15,9 @@ import java.util.concurrent.FutureTask;
 
 import javax.crypto.Cipher;
 
-import cn.carhouse.utils.ContextUtils;
 import cn.carhouse.utils.DateUtils;
 import cn.carhouse.utils.DensityUtils;
-import cn.carhouse.utils.LogUtils;
+import cn.carhouse.utils.LG;
 import cn.carhouse.utils.SPUtils;
 import cn.carhouse.utils.TSUtils;
 import cn.carhouse.utils.ThreadPoolUtils;
@@ -41,6 +40,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class DownloadFilesTask extends AsyncTask<String, Integer, Long> {
+        public DownloadFilesTask() {
+            super();
+        }
+
         @Override
         protected void onPreExecute() {
 
@@ -96,13 +99,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void thread() {
-        LogUtils.setDebug(true);
+        LG.setDebug(true);
         // 1. 创建Callable
         Callable<String> callable = new Callable<String>() {
             @Override
             public String call() throws Exception {
                 // 在这里做耗时操作
-                LogUtils.e("callable");
+                LG.e("callable");
                 SystemClock.sleep(200);
                 return "callable";
             }
@@ -113,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
             protected void done() {
                 try {
                     // 在这里可以拿到结果
-                    LogUtils.e("done:" + get());
+                    LG.e("done:" + get());
                 } catch (ExecutionException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {

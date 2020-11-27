@@ -112,6 +112,7 @@ public class ThreadPoolUtils {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
+            // 如果出现异常
             if (!success) {
                 finishTask(task);
             }

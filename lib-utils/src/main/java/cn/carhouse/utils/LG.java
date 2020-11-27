@@ -6,15 +6,15 @@ import android.util.Log;
 /**
  * Log打印的工具类
  */
-public class LogUtils {
-    public static final String TAG = LogUtils.class.getSimpleName();
+public class LG {
+    public static final String TAG = LG.class.getSimpleName();
     private static boolean isDebug = false;
 
     /**
      * 设置要不要打印，默认是关闭的
      */
     public static void setDebug(boolean isDebug) {
-        LogUtils.isDebug = isDebug;
+        LG.isDebug = isDebug;
     }
 
 
